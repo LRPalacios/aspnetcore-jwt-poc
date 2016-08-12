@@ -3,16 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
+using Jose;
+using System.Text;
+
+// For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace aspnetcore_jwt_poc.Controllers
 {
     [Route("api/[controller]")]
-    public class ValuesController : Controller
+    public class AuthenticationController : Controller
     {
-        // GET api/values
+        // GET: api/values
         [HttpGet]
-        [Authorize]
         public IEnumerable<string> Get()
         {
             return new string[] { "value1", "value2" };
@@ -27,8 +29,21 @@ namespace aspnetcore_jwt_poc.Controllers
 
         // POST api/values
         [HttpPost]
-        public void Post([FromBody]string value)
+        public IActionResult Post()
         {
+            var payload = new Dictionary<string, object>()
+            {
+                { "sub", "123456" },
+                { "exp", 1502554610 },
+                { "iss", "http://www.example.com" },
+                { "aud", "committee"}
+            };
+
+            byte[] secretKey = Encoding.ASCII.GetBytes("r9VjvvJz4BYpDwcPXebs4DfJdLeGY5Xg");
+            string SsecretKey = Encoding.ASCII.GetString(secretKey);
+            string token = Jose.JWT.Encode(payload, secretKey, JwsAlgorithm.HS256);
+
+            return Ok(token);
         }
 
         // PUT api/values/5

@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace aspnetcore_jwt_poc
 {
@@ -36,6 +38,20 @@ namespace aspnetcore_jwt_poc
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
+
+            var keyAsBytes = Encoding.ASCII.GetBytes("r9VjvvJz4BYpDwcPXebs4DfJdLeGY5Xg");
+
+            var options = new JwtBearerOptions
+            {
+                TokenValidationParameters =
+                {
+                    ValidIssuer = "http://www.example.com",
+                    ValidAudience = "committee",
+                    IssuerSigningKey = new SymmetricSecurityKey(keyAsBytes)
+                },
+                
+            };
+            app.UseJwtBearerAuthentication(options);
 
             app.UseMvc();
         }
